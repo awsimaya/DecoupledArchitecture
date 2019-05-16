@@ -132,7 +132,7 @@ We will be creating the following resources as a result of this section
 * Select **Stages** and select **Prod** 
 * Under **Logs/Tracing** tab, check **Enable CloudWatch Logs** and **Enable X-Ray Tracing** checkboxes as shown below
 
-![API Gateway XRay setting](/images/APIGAtewayXRay.png)
+![API Gateway XRay setting](/images/APIGatewayXRay.png)
 
 * Open **LeaveRequestProcessor.sln** solution under **LeaveRequestProcessor** folder
 * In **Function.cs** file, replace **<SNS_TOPIC_ARN>** with the ARN you saved into the text editor in **Create Amazon SNS Topic** step
