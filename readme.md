@@ -46,6 +46,8 @@ Create a fully decoupled, microservices architecture based Leave Management appl
 https://docs.aws.amazon.com/powershell/latest/userguide/pstools-getting-set-up-windows.html
 * Clone this GitHub repo
     * https://github.com/awsimaya/DecoupledArchitecture
+* Install Docker for Windows
+    * Download from here - https://docs.docker.com/docker-for-windows/install/
 ### Create Workflow services
 #### Create Amazon SNS Topic
 
@@ -113,7 +115,7 @@ We will be creating the following resources as a result of this section
  * A Lambda function called **GetLeaveRequests**
  * An API Gateway API called **LeaveManagementAPI**
 
-#### Steps
+##### Steps
 
 * Open **LeaveManagementAPI.sln** from **LeaveManagementAPI** folder
 * Right click on **LeaveManagementAPI** project and click **Publish to AWS Lambda...**
@@ -143,3 +145,101 @@ We will be creating the following resources as a result of this section
 * Enter any name for the S3bucket in the **S3 Bucket** text box
 * Click **Publish**
 * Visual Studio will open a new window to show the progress of the deployment and will show **CREATE_COMPLETE** once successfully deployed
+
+### Create Web front end
+
+> In this section we will create the web front end that will help users create and manage leave approval requests
+
+#### Create a new IAM role for ECS task execution
+> In this section, we will create a new IAM role for the ECS Service you will create to assume
+* Open AWS console and navigate to **IAM** -> **ROLES** 
+* Click **Create role**
+* In the next screen, select **AWS service** for **Select type opf trusted identity**
+* Select **Elastic Container Service** under  **Choose the service that will use this role**
+* Select **Elastic Container Service Task** under  **Select your use case**. Click **Next: Permissions**
+* In the next screen, select **AmazonECSTaskExecutionRolePolicy** policy, click **Attach policy** and click **Next: Tags**
+* Click **Next** in the next page
+* Enter **ecsTaskExecutionRole** as name in the next page. Click **Create role**
+* Go back to **ecsTaskExecutionRole**, click **Add Inline policy** and go to **JSON** tab
+* Copy and paste the following JSON into the textarea
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+```
+* Click **Review policy**
+* Name the policy as **PushtoXRayPol** and click **Create policy**
+
+#### Publish web app to Amazon ECS
+> In this section, we will publish the Web application to Amazon ECS
+* Open **LeaveWebApp.sln** file from the **LeaveWebApp** folder
+* In **HomeController.cs**, replace **<API_GATEWAY_URL>** with the API Gateway URL you saved in step **Create LeaveManagementAPIs**
+* Right click on **LeaveWebApp** project and click **Publish Container to AWS...**
+* In the wizard, enter **leavewebapp** in **Docker Repository** field
+* Select **Service on ECS Cluster** option (as shown below) and click **Next**
+![PublishWebApp](/images/PublishWebApp.png)
+* In the next window, select **Create an empty cluster** and enter **LeaveWebApp** in the textbox next to the dropdown. Click **Next**
+* In the next window, select **Create New** for **Service** and enter **LeaveWebApp** in the textbox next to dropdown. Click **Next**
+* In the next window, check **Configure Application Load Balancer** check box, select **Create New** for  **Load Balancer:** dropdown and enter **LeaveWebApp** in the textbox next to it.Click **Next**
+![PublishWebApp](/images/PublishWebApp2.png)
+* In the next window, select **Create New** for **Task Definition** dropdown and enter **LeaveWebApp** in the textbox next to it.
+* Select **Create New** for **Container** dropdown and enther **LeaveWebApp** in the textbox next to it.
+* Select **Existing role: ecsTaskExecutionRole** for **Task Role:** dropdown
+* Select **ecsTaskExecutionRole** for **Task Execution Role** dropdown
+* Click **Publish**
+* Visual Studio will now start publishing the application environment
+* You just published the Web application to Amazon ECS
+* Once complete, you will be able to see a new ECS service called **LeaveWebApp** on the AWS console
+
+#### Configure XRay for the ECS Service
+> In this section, we will create a X-Ray daemon container which will run as a side-car container  along with the LeaveWebApp container to process and send X-Ray data to the X-Ray service on AWS.
+
+> More about this topic here - https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-ecs.html
+
+* Open PowerShell and execute the following commands. The first command pulls the **aws-xray-daemon** container image from docker hub. The second command tags the image as **xraydaemon**
+```docker
+docker pull amazon/aws-xray-daemon
+docker tag amazon/aws-xray-daemon:latest xraydaemon:latest
+```
+* Login to AWS console and navigate to **Amazon ECS**. Click **Repositories** on the left navigation section
+* Click **Create repository** and name it **xraydaemon**
+* Click **Create repository** 
+* Click on **View push commands** on the top right of the screen
+* Choose Windows or macOS/Linux tab and execute the command from Step 1. The command will return a very long URL. Copy and paste the URL into the command line and press enter.
+* Skip the step 2 command, because we already have the container image downloaded from docker hub earlier. Execute commands from Step 3 and Step 4.
+* Once complete, go to the **xraydaemon** repository on the AWS ECR home page and ensure the new image has been published successfully
+* Navigate to **Task Definitions** on **Amazon ECS** home page and click **LeaveWebApp**
+* Select the latest version and click **Create new revision**
+* Under **Container Definitions** click **Add container**
+* Name the container **xray-daemon**
+* Copy and paste the container image URI from **xraydaemon** ECR repo into the **Image** textbox
+* Click **Add** button at the bottom
+* Select the newly created version of the Task Definition
+* Select **Actions** -> **Update Service**
+* Select **LeaveWebApp** in the **Cluster** dropdown
+* Check **Force new deployment** checkbox
+* Click **Next step** in the next few screens until you get to **Review** screen. Click **Update Service**
+* You just finished deploying the Leave Web App to Amazon ECS 
+
+### Test drive the application
+* Copy and paste the DNS name of the **LeaveWebApp** ALB from the EC2 home page on AWS console into a browser and press enter
+* You should be able to see the application as shown below
+![LeaveWebAppHome](/images/LeaveWebAppHome.png)
+* You can Submit a Leave Request and also Approve a Leave Request using this application by clicking on the appropriate links.
+* Once you submit a Leave Request, you will see an email arrive in your email inbox that you configured earlier
+* Also another email will land in your email inbox once you approve a request as well
+* After you play around with the application for a while, you can navigate to X-Ray home page on AWS console and click **Service map**
+* You should be able to see the service map as shown below
+![Xray](/images/X-Ray.png)
