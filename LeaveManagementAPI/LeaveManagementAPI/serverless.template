@@ -94,6 +94,15 @@
       }
     },
 
+	"AddOrUpdateLeaveRequestAPI":{
+		"Type":"AWS::Serverless::Api",
+		"Properties":{
+			"Name":"LeaveManagementAPI",
+            "StageName" : "Prod",
+			"TracingEnabled":true
+		}
+	},
+
     "LeaveTable" : {
         "Type" : "AWS::DynamoDB::Table",
         "Condition" : "CreateLeaveTable",

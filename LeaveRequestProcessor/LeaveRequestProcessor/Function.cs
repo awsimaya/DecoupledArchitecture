@@ -24,8 +24,8 @@ namespace LeaveRequestProcessor
     public class Function
     {
         private static readonly JsonSerializer _jsonSerializer = new JsonSerializer();
-        private static readonly string SNSTopicARN = "SNS_TOPIC_ARN";
-        private static string STATEMACHINE_ARN = "STEP_FUNCTION_STATEMACHINE_ARN";
+        private static readonly string SNSTOPIC_ARN = "<SNS_TOPIC_ARN>";
+        private static string STATEMACHINE_ARN = "<STEP_FUNCTION_STATEMACHINE_ARN>";
 
         public void FunctionHandler(DynamoDBEvent dynamoEvent, ILambdaContext context)
         {
@@ -49,7 +49,7 @@ namespace LeaveRequestProcessor
                     snsClient.PublishAsync(new PublishRequest()
                     {
                         Message = $"{record.Dynamodb.NewImage["EmployeeName"].S} has submitted a Leave Request. Please respond.",
-                        TopicArn = SNSTopicARN
+                        TopicArn = SNSTOPIC_ARN
                     }).Wait();
                 }
                 else if (record.EventName == "MODIFY" && record.Dynamodb.NewImage["LeaveStatus"].S == "Approved")

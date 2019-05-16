@@ -11,10 +11,9 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 
-
 using Newtonsoft.Json;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
-using Amazon.XRay.Recorder.Core;
+
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -71,7 +70,6 @@ namespace LeaveManagementAPI
         /// <returns>The list of Leave Requests</returns>
         public async Task<APIGatewayProxyResponse> GetLeaveRequestsAsync(APIGatewayProxyRequest request, ILambdaContext context)
         {
-         //   AWSSDKHandler.RegisterXRayForAllServices();
             context.Logger.LogLine("Getting Leave Requests");
 
             var search = this.DDBContext.ScanAsync<Leave>(null);
@@ -96,8 +94,6 @@ namespace LeaveManagementAPI
         /// <returns></returns>
         public async Task<APIGatewayProxyResponse> AddOrUpdateLeaveRequestAsync(APIGatewayProxyRequest request, ILambdaContext context)
         {
-       //     AWSSDKHandler.RegisterXRayForAllServices();
-
             var leave = JsonConvert.DeserializeObject<Leave>(request?.Body);
             leave.LeaveID = leave.LeaveID ?? Guid.NewGuid().ToString();
 

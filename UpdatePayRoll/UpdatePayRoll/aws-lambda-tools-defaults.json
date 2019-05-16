@@ -15,7 +15,7 @@
     "function-timeout"     : 30,
     "function-handler"     : "UpdatePayRoll::UpdatePayRoll.Function::FunctionHandler",
     "function-name"        : "UpdatePayRoll",
-    "function-role"        : "<ROLE_ARN>",
+    "function-role"        : "",
     "tracing-mode"         : "PassThrough",
     "environment-variables" : ""
 }
