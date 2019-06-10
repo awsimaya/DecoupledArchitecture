@@ -5,7 +5,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
-COPY ["LeaveWebApp/LeaveWebApp.csproj", "LeaveWebApp/"]
+COPY ["LeaveWebApp.csproj", "LeaveWebApp/"]
 RUN dotnet restore "LeaveWebApp/LeaveWebApp.csproj"
 COPY . .
 WORKDIR "/src/LeaveWebApp"
