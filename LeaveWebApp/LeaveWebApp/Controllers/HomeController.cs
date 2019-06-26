@@ -10,13 +10,14 @@ using Newtonsoft.Json;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Handlers.System.Net;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using System;
 
 namespace LeaveWebApp.Controllers
 {
     public class HomeController : Controller
     {
         private static AmazonDynamoDBClient client = new AmazonDynamoDBClient(RegionEndpoint.USEast1);
-        private static string APIURL = "<API_GATEWAY_URL>";
+        private static string APIURL = "APIURL";
 
         private HttpClient httpClient;
 
@@ -70,6 +71,12 @@ namespace LeaveWebApp.Controllers
             leave.LeaveStatus = "Rejected";
             ViewData["SaveStatus"] = (await this.httpClient.PostAsJsonAsync(APIURL, leave)).IsSuccessStatusCode.ToString();
             return View("Approve", leave);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ParkAside(Leave leave)
+        {
+            throw new NotImplementedException("Feature is not implemented yet.");
         }
 
         public IActionResult Privacy()
