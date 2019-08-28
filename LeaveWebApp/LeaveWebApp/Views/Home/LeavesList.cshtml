@@ -4,12 +4,17 @@
     ViewData["Title"] = "Leaves List";
 }
 
-<h1>Leave Requests</h1>
+<h1 style="font-family: 'Exo', sans-serif;">Leave Requests</h1>
+<style>
+    *{
+    font-family: 'Exo', sans-serif;
+}
+</style>
 
 <hr />
 @if (Model.Length == 0)
 {
-    <h2>🦗 🦗 🦗 </h2>
+    <h2>🦗 🦗 🦗</h2>
 }
 else
 {

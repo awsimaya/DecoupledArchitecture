@@ -17,7 +17,7 @@ namespace LeaveWebApp.Controllers
     public class HomeController : Controller
     {
         private static AmazonDynamoDBClient client = new AmazonDynamoDBClient(RegionEndpoint.USEast1);
-        private static string APIURL = "APIURL";
+        private static string APIURL = "https://4k0h7bg3xf.execute-api.us-east-1.amazonaws.com/Prod/";
 
         private HttpClient httpClient;
 
