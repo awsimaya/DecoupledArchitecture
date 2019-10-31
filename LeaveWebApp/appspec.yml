@@ -1,0 +1,10 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        #TaskDefinition: "arn:aws:ecs:us-east-1:831210339789:task-definition/LeaveWebApp:13"
+        TaskDefinition: <TASK_DEFINITION>
+        LoadBalancerInfo:
+          ContainerName: "LeaveWebApp"
+          ContainerPort: 80

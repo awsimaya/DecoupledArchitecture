@@ -1,0 +1,22 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      dotnet: 2.2
+  pre_build:
+    commands:
+    - echo Restore started on `date`
+    - dotnet restore ./LeaveWebApp/LeaveWebApp.csproj
+  build:
+    commands:
+    - echo Build started on `date`
+    - dotnet publish -c release -o . ./LeaveWebApp/LeaveWebApp.csproj
+artifacts:
+  type: zip
+  files:
+    - '*.dll'
+    - '*.config'
+    - '*.json'
+    - '*.pdb'
+    - 'wwwroot/**/*'
+  base-directory: LeaveWebApp
